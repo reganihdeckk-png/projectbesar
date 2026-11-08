@@ -1,0 +1,17 @@
+{
+  "name": "glassy-premium-store",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Private premium app store using the Premku API",
+  "scripts": {
+    "start": "node server.js",
+    "build:worker": "node build-worker-assets.js",
+    "dev:worker": "npm run build:worker && npx --yes wrangler@latest dev",
+    "deploy:remote": "npx --yes wrangler@latest d1 migrations apply premium-orders --remote && npx --yes wrangler@latest deploy",
+    "deploy:worker": "npm run build:worker && npm run deploy:remote"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

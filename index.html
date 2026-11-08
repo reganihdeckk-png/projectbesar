@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081521">
+  <meta name="description" content="Kenalan dengan Adi dan gunakan glassy untuk meningkatkan kualitas video serta membuat teks dengan Ephoto360.">
+  <title>Adi — glassy social tools</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --ink: #f7f8ff;
+      --muted: #a6acc5;
+      --line: rgba(255,255,255,.13);
+      --panel: rgba(255,255,255,.075);
+      --violet: #a993ff;
+      --cyan: #76e4e6;
+      --pink: #f2a4d5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 12% 8%, rgba(114,83,205,.27), transparent 34rem),
+        radial-gradient(ellipse at 89% 31%, rgba(42,160,169,.18), transparent 31rem),
+        #090c1b;
+      overflow-x: hidden;
+    }
+    body::before, body::after {
+      position: fixed;
+      z-index: -1;
+      width: 25rem;
+      height: 25rem;
+      border-radius: 50%;
+      content: "";
+      filter: blur(85px);
+      opacity: .18;
+      pointer-events: none;
+      animation: drift 16s ease-in-out infinite alternate;
+    }
+    body::before { top: 24%; left: -12rem; background: #8a67ff; }
+    body::after { right: -13rem; bottom: -7rem; background: #3bd4cf; animation-delay: -7s; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .shell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    header {
+      display: flex;
+      height: 82px;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-size: 19px; font-weight: 750; letter-spacing: -.7px; }
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 12px;
+      background: linear-gradient(140deg, rgba(169,147,255,.65), rgba(118,228,230,.34));
+      box-shadow: 0 0 24px rgba(153,129,255,.35), inset 0 1px rgba(255,255,255,.55);
+    }
+    .header-note { color: var(--muted); font-size: 13px; }
+    main { padding: 68px 0 76px; }
+    .hero { max-width: 720px; margin: 0 auto 38px; text-align: center; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 99px;
+      background: rgba(255,255,255,.055);
+      color: #d9d4ff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); content: ""; }
+    h1 { margin: 19px 0 14px; font-size: clamp(38px, 7vw, 66px); line-height: 1.03; letter-spacing: -3.4px; }
+    h1 span { color: transparent; background: linear-gradient(100deg, #c0adff 18%, #91e8e2 83%); background-clip: text; }
+    .hero p { max-width: 550px; margin: auto; color: var(--muted); font-size: 15px; line-height: 1.7; }
+    .app-card {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      padding: 9px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 25px;
+      background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.035) 45%, rgba(132,118,194,.08));
+      box-shadow: 0 32px 100px rgba(0,0,0,.35), inset 0 1px rgba(255,255,255,.16);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      animation: rise .75s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .app-inner { padding: 26px; border: 1px solid rgba(255,255,255,.075); border-radius: 18px; background: rgba(8,11,25,.55); }
+    .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; padding: 5px; border: 1px solid rgba(255,255,255,.08); border-radius: 14px; background: rgba(0,0,0,.19); }
+    .tab {
+      min-height: 45px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color .25s ease, background .25s ease, border .25s ease, transform .25s ease;
+    }
+    .tab:hover { color: var(--ink); }
+    .tab:active { transform: scale(.98); }
+    .tab[aria-selected="true"] { border-color: rgba(255,255,255,.11); background: linear-gradient(110deg, rgba(169,147,255,.2), rgba(118,228,230,.09)); color: white; box-shadow: inset 0 1px rgba(255,255,255,.1); }
+    .tab-icon { margin-right: 7px; }
+    .form-area { padding: 27px 2px 6px; }
+    .form-area h2 { margin: 0 0 8px; font-size: 19px; letter-spacing: -.4px; }
+    .form-area > p { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .input-row { display: flex; gap: 10px; }
+    .input-wrap { position: relative; flex: 1; }
+    .input-wrap span { position: absolute; top: 50%; left: 15px; color: #8e95b2; transform: translateY(-50%); }
+    input {
+      width: 100%;
+      height: 54px;
+      padding: 0 16px 0 43px;
+      outline: none;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 13px;
+      background: rgba(255,255,255,.045);
+      color: white;
+      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    input::placeholder { color: #777e99; }
+    input:focus { border-color: rgba(169,147,255,.7); background: rgba(255,255,255,.065); box-shadow: 0 0 0 4px rgba(169,147,255,.12); }
+    .submit {
+      min-width: 142px;
+      padding: 0 18px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 13px;
+      background: linear-gradient(115deg, #a18bef, #77cdd1);
+      color: #111329;
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+      box-shadow: 0 7px 24px rgba(122,124,222,.2), inset 0 1px rgba(255,255,255,.6);
+      transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+    }
+    .submit:hover { filter: brightness(1.09); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(122,124,222,.3), inset 0 1px rgba(255,255,255,.6); }
+    .submit:active { transform: translateY(0) scale(.98); }
+    .submit:disabled { cursor: wait; filter: saturate(.55); opacity: .8; transform: none; }
+    .status { display: none; margin: 17px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 11px; color: #d8dcf0; font-size: 13px; line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; }
+    .status.show { display: block; animation: fade-in .25s ease both; }
+    .status.error { border-color: rgba(255,133,156,.25); background: rgba(255,90,120,.07); color: #ffc0ca; }
+    .status.success { border-color: rgba(118,228,230,.23); background: rgba(118,228,230,.07); }
+    .result { display: grid; gap: 12px; margin-top: 18px; }
+    .media-card { display: grid; grid-template-columns: minmax(0, 180px) 1fr; gap: 16px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.045); animation: fade-in .35s ease both; }
+    .media-card img, .media-card video { display: block; width: 100%; max-height: 250px; object-fit: cover; border-radius: 9px; background: rgba(0,0,0,.25); }
+    .media-card video { object-fit: contain; }
+    .media-info { min-width: 0; }
+    .media-info strong { display: block; margin-bottom: 6px; font-size: 14px; }
+    .media-info p { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .action-link { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 9px; background: rgba(255,255,255,.08); color: white; font-size: 12px; font-weight: 650; text-decoration: none; transition: background .2s ease, transform .2s ease; }
+    .action-link:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
+    .disclaimer { width: min(760px, 100%); margin: 17px auto 0; color: #858ca8; font-size: 11px; line-height: 1.65; text-align: center; }
+    footer { padding: 20px 0 28px; color: #747b96; font-size: 11px; text-align: center; }
+    .spinner { display: inline-block; width: 14px; height: 14px; margin-right: 7px; vertical-align: -2px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes drift { to { transform: translate(70px, -45px) scale(1.16); } }
+    @media (max-width: 600px) {
+      .shell { width: min(100% - 26px, 520px); }
+      header { height: 68px; }
+      .header-note { font-size: 11px; }
+      main { padding: 49px 0 56px; }
+      h1 { letter-spacing: -2px; }
+      .hero p { font-size: 14px; }
+      .app-inner { padding: 16px; }
+      .tab { font-size: 12px; }
+      .tab-icon { display: block; margin: 0 0 3px; }
+      .input-row { flex-direction: column; }
+      .submit { min-height: 50px; }
+      .media-card { grid-template-columns: minmax(0, 112px) 1fr; gap: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="desain.css">
+</head>
+<body>
+  <div class="shell" inert aria-hidden="true">
+    <header>
+      <a class="brand" href="#about" aria-label="Kembali ke Tentang Adi"><span class="brand-mark">✦</span> glassy</a>
+      <div class="header-note"><span class="online-dot"></span> simple tools, softer edges</div>
+    </header>
+    <main>
+      <section class="portfolio flow-page" id="about" data-flow-page="about" aria-labelledby="about-title" hidden>
+        <div class="portfolio-intro">
+          <div class="profile-orb" aria-hidden="true"><span>A</span><i></i></div>
+          <div class="portfolio-copy">
+            <div class="eyebrow">kenalan dulu</div>
+            <h2 id="about-title">Halo, saya <span>Adi.</span></h2>
+            <p>Saya suka membuat pengalaman web yang terasa simpel, nyaman, dan menyenangkan dipakai. glassy menggabungkan alat sosial favorit dengan tampilan liquid glass yang ringan.</p>
+          </div>
+        </div>
+        <div class="strengths-heading">
+          <span class="section-kicker">Dibuat dengan tujuan</span>
+          <h3>Lebih nyaman, dari awal.</h3>
+        </div>
+        <div class="strength-grid">
+          <article class="strength-card">
+            <span class="strength-icon" aria-hidden="true">✦</span>
+            <h4>Semua dalam satu</h4>
+            <p>TikTok downloader, HD Video Enhancer, dan Ephoto360 tersedia dalam satu halaman.</p>
+          </article>
+          <article class="strength-card">
+            <span class="strength-icon" aria-hidden="true">⌁</span>
+            <h4>Ringan dan praktis</h4>
+            <p>Tanpa instalasi aplikasi. Buka halaman, pilih fitur, lalu masukkan tautan atau pilih video.</p>
+          </article>
+          <article class="strength-card">
+            <span class="strength-icon" aria-hidden="true">◌</span>
+            <h4>Detail yang terasa</h4>
+            <p>Warna air yang menenangkan, lapisan kaca transparan, dan animasi lembut di berbagai ukuran layar.</p>
+          </article>
+        </div>
+        <div class="page-actions">
+          <span class="page-step">02 <span>/ 04</span></span>
+          <button class="page-button" type="button" data-go-page="tools">Lanjut ke tools <span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+      <section class="tools-section flow-page" id="tools" data-flow-page="tools" aria-label="Tools" hidden>
+        <div class="hero" id="home">
+          <button class="back-link" type="button" data-go-page="about"><span aria-hidden="true">←</span> Kembali ke tentang Adi</button>
+          <div class="eyebrow">social media toolkit</div>
+          <h1>Tools favorit,<br><span>dalam satu tempat.</span></h1>
+          <p>Unduh video TikTok, tingkatkan kualitas video, atau buat teks dengan berbagai efek Ephoto360.</p>
+        </div>
+        <section class="app-card" id="downloader" aria-label="Pilih fitur">
+          <div class="app-inner">
+            <div class="tabs" role="tablist" aria-label="Pilih fitur">
+              <button class="tab" id="tab-tiktok" role="tab" aria-selected="true" aria-controls="panel" data-mode="tiktok"><span class="tab-icon">♪</span>TikTok</button>
+              <button class="tab" id="tab-hdvideo" role="tab" aria-selected="false" aria-controls="panel" data-mode="hdvideo"><span class="tab-icon">◈</span>HD Video</button>
+              <button class="tab" id="tab-ephoto" role="tab" aria-selected="false" aria-controls="panel" data-mode="ephoto"><span class="tab-icon">✧</span>Ephoto360</button>
+            </div>
+            <div class="form-area" id="panel" role="tabpanel" aria-labelledby="tab-tiktok">
+              <h2 id="form-title">TikTok downloader</h2>
+              <p id="form-description">Tempel tautan video atau slideshow TikTok untuk melihat media yang tersedia.</p>
+              <form id="download-form">
+                <div class="input-row">
+                  <label class="input-wrap">
+                    <span id="input-icon">↗</span>
+                    <input id="url-input" type="url" autocomplete="url" placeholder="https://www.tiktok.com/..." required aria-label="URL atau username">
+                  </label>
+                  <button class="submit" id="submit-button" type="submit">Cari media <span aria-hidden="true">→</span></button>
+                </div>
+              </form>
+              <section class="video-enhancer" id="video-enhancer" hidden aria-label="HD Video Enhancer">
+                <p class="enhancer-desc">Pilih video dari perangkat untuk memprosesnya menjadi HD.</p>
+                <label class="video-upload" for="video-input">
+                  <input id="video-input" type="file" accept="video/*">
+                  <span class="upload-icon" aria-hidden="true">↥</span>
+                  <span class="upload-copy">
+                    <strong id="video-file-name">Pilih video kamu</strong>
+                    <small>Video dari perangkat · Pilih file untuk mulai</small>
+                  </span>
+                </label>
+                <video class="video-preview" id="video-preview" controls playsinline hidden></video>
+                <button class="submit enhancer-submit" id="process-video" type="button" disabled>Enhance video <span aria-hidden="true">→</span></button>
+                <div class="status enhancer-status" id="enhancer-status" role="status" aria-live="polite"></div>
+                <div class="enhancer-output" id="enhancer-output"></div>
+              </section>
+              <label class="effect-select-wrap" id="effect-select-wrap" for="effect-select" hidden>
+                <span>Pilih efek teks</span>
+                <select id="effect-select">
+                  <option value="glitchtext">Glitch Text</option>
+                  <option value="writetext">Write Text</option>
+                  <option value="advancedglow">Advanced Glow</option>
+                  <option value="typographytext">Typography Text</option>
+                  <option value="pixelglitch">Pixel Glitch</option>
+                  <option value="neonglitch">Neon Glitch</option>
+                  <option value="flagtext">Flag Text</option>
+                  <option value="flag3dtext">Flag 3D Text</option>
+                  <option value="deletingtext">Deleting Text</option>
+                  <option value="blackpinkstyle">Blackpink Style</option>
+                  <option value="glowingtext">Glowing Text</option>
+                  <option value="underwatertext">Underwater Text</option>
+                  <option value="logomaker">Logo Maker</option>
+                  <option value="cartoonstyle">Cartoon Style</option>
+                  <option value="papercutstyle">Paper Cut Style</option>
+                  <option value="watercolortext">Watercolor Text</option>
+                  <option value="effectclouds">Effect Clouds</option>
+                  <option value="blackpinklogo">Blackpink Logo</option>
+                  <option value="gradienttext">Gradient Text</option>
+                  <option value="summerbeach">Summer Beach</option>
+                  <option value="luxurygold">Luxury Gold</option>
+                  <option value="multicoloyellowneon">Yellow Neon</option>
+                  <option value="sandsummer">Sand Summer</option>
+                  <option value="galaxywallpaper">Galaxy Wallpaper</option>
+                  <option value="1917style">1917 Style</option>
+                  <option value="makingneon">Making Neon</option>
+                  <option value="royaltext">Royal Text</option>
+                  <option value="freecreate">Free Create</option>
+                  <option value="galaxystyle">Galaxy Style</option>
+                  <option value="lighteffects">Light Effects</option>
+                </select>
+              </label>
+              <div class="status" id="status" role="status" aria-live="polite"></div>
+              <div class="result" id="result"></div>
+            </div>
+          </div>
+        </section>
+        <p class="disclaimer">Gunakan hanya untuk konten yang boleh Anda simpan. Fitur video HD membutuhkan endpoint backend <code>/api/upload</code> dan <code>/api/hdvideo</code>.</p>
+        <div class="page-actions">
+          <span class="page-step">03 <span>/ 04</span></span>
+          <button class="page-button" type="button" data-go-page="order">Order aplikasi premium <span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+      <section class="order-section flow-page" id="order" data-flow-page="order" aria-labelledby="order-title" hidden>
+        <div class="hero">
+          <button class="back-link" type="button" data-go-page="tools"><span aria-hidden="true">←</span> Kembali ke tools</button>
+          <div class="eyebrow">katalog digital</div>
+          <h1 id="order-title">Order aplikasi<br><span>premium.</span></h1>
+          <p>Pilih produk yang tersedia, selesaikan pembayaran, dan lihat hasil akun pesanan langsung di halaman ini.</p>
+        </div>
+        <section class="app-card order-card" aria-label="Katalog aplikasi premium">
+          <div class="app-inner">
+            <div class="order-security-note" role="status">
+              <span class="order-security-icon" aria-hidden="true">⌑</span>
+              <div>
+                <strong id="order-security-title">Menghubungkan ke toko</strong>
+                <p id="order-security-message">Memuat katalog dan status checkout dari backend toko.</p>
+              </div>
+            </div>
+            <div class="order-catalog-heading">
+              <div>
+                <span class="section-kicker">TOKO APLIKASI</span>
+                <h2>Katalog premium</h2>
+              </div>
+              <button class="catalog-badge catalog-refresh" id="order-refresh" type="button">Muat ulang</button>
+            </div>
+            <div class="order-catalog" id="order-catalog" aria-live="polite">
+              <p class="catalog-empty">Memuat katalog produk terbaru...</p>
+            </div>
+            <section class="checkout-panel" id="checkout-panel" aria-live="polite" hidden>
+              <div class="checkout-heading">
+                <div>
+                  <span class="section-kicker">PEMBAYARAN</span>
+                  <h3 id="checkout-title">Menyiapkan pembayaran</h3>
+                </div>
+                <button class="checkout-close" id="checkout-close" type="button" aria-label="Tutup pembayaran">×</button>
+              </div>
+              <div class="checkout-content" id="checkout-content"></div>
+            </section>
+            <div class="order-help">
+              <strong>Akun dan status order</strong>
+              <p>Status pembayaran akan diperiksa otomatis. Setelah order selesai, detail akun akan ditampilkan di halaman ini.</p>
+            </div>
+          </div>
+        </section>
+        <div class="page-actions">
+          <span class="page-step">04 <span>/ 04</span></span>
+          <button class="page-button" type="button" data-go-page="tools"><span aria-hidden="true">←</span> Kembali ke tools</button>
+        </div>
+      </section>
+    </main>
+    <footer><span>glassy</span><span>Dirancang dengan rasa ingin tahu oleh Adi</span><span>© 2026</span></footer>
+  </div>
+  <div class="invite-backdrop" id="channel-invite">
+    <section class="invite-dialog" role="dialog" aria-modal="true" aria-labelledby="invite-title" aria-describedby="invite-description" tabindex="-1">
+      <p class="invite-page-step">01 <span>/ 04</span></p>
+      <button class="invite-close" type="button" aria-label="Tutup ajakan">×</button>
+      <div class="invite-symbol" aria-hidden="true">◉</div>
+      <p class="invite-kicker">tetap terhubung</p>
+      <h2 id="invite-title">Ikuti saluran WhatsApp Adi</h2>
+      <p id="invite-description">Gabung ke saluran saya untuk mengikuti kabar dan update. Tekan tanda × untuk lanjut ke halaman berikutnya.</p>
+      <a class="invite-join" href="https://whatsapp.com/channel/0029VbE5A9VBPzjScJYKA50E" target="_blank" rel="noopener noreferrer">Lihat saluran <span aria-hidden="true">↗</span></a>
+      <span class="invite-note">Tekan × untuk melewati pemberitahuan ini.</span>
+    </section>
+  </div>
+  <script>
+    (() => {
+      const ephotoEffects = {
+        glitchtext: "https://en.ephoto360.com/create-digital-glitch-text-effects-online-767.html",
+        writetext: "https://en.ephoto360.com/write-text-on-wet-glass-online-589.html",
+        advancedglow: "https://en.ephoto360.com/advanced-glow-effects-74.html",
+        typographytext: "https://en.ephoto360.com/create-typography-text-effect-on-pavement-online-774.html",
+        pixelglitch: "https://en.ephoto360.com/create-pixel-glitch-text-effect-online-769.html",
+        neonglitch: "https://en.ephoto360.com/create-impressive-neon-glitch-text-effects-online-768.html",
+        flagtext: "https://en.ephoto360.com/nigeria-3d-flag-text-effect-online-free-753.html",
+        flag3dtext: "https://en.ephoto360.com/free-online-american-flag-3d-text-effect-generator-725.html",
+        deletingtext: "https://en.ephoto360.com/create-eraser-deleting-text-effect-online-717.html",
+        blackpinkstyle: "https://en.ephoto360.com/online-blackpink-style-logo-maker-effect-711.html",
+        glowingtext: "https://en.ephoto360.com/create-glowing-text-effects-online-706.html",
+        underwatertext: "https://en.ephoto360.com/3d-underwater-text-effect-online-682.html",
+        logomaker: "https://en.ephoto360.com/free-bear-logo-maker-online-673.html",
+        cartoonstyle: "https://en.ephoto360.com/create-a-cartoon-style-graffiti-text-effect-online-668.html",
+        papercutstyle: "https://en.ephoto360.com/multicolor-3d-paper-cut-style-text-effect-658.html",
+        watercolortext: "https://en.ephoto360.com/create-a-watercolor-text-effect-online-655.html",
+        effectclouds: "https://en.ephoto360.com/write-text-effect-clouds-in-the-sky-online-619.html",
+        blackpinklogo: "https://en.ephoto360.com/create-blackpink-logo-online-free-607.html",
+        gradienttext: "https://en.ephoto360.com/create-3d-gradient-text-effect-online-600.html",
+        summerbeach: "https://en.ephoto360.com/write-in-sand-summer-beach-online-free-595.html",
+        luxurygold: "https://en.ephoto360.com/create-a-luxury-gold-text-effect-online-594.html",
+        multicoloyellowneon: "https://en.ephoto360.com/create-multicoloyellow-neon-light-signatures-591.html",
+        sandsummer: "https://en.ephoto360.com/write-in-sand-summer-beach-online-576.html",
+        galaxywallpaper: "https://en.ephoto360.com/create-galaxy-wallpaper-mobile-online-528.html",
+        "1917style": "https://en.ephoto360.com/1917-style-text-effect-523.html",
+        makingneon: "https://en.ephoto360.com/making-neon-light-text-effect-with-galaxy-style-521.html",
+        royaltext: "https://en.ephoto360.com/royal-text-effect-online-free-471.html",
+        freecreate: "https://en.ephoto360.com/free-create-a-3d-hologram-text-effect-441.html",
+        galaxystyle: "https://en.ephoto360.com/create-galaxy-style-free-name-logo-438.html",
+        lighteffects: "https://en.ephoto360.com/create-light-effects-green-neon-online-429.html"
+      };
+      const modes = {
+        tiktok: {
+          title: "TikTok downloader",
+          description: "Tempel tautan video atau slideshow TikTok untuk melihat media yang tersedia.",
+          placeholder: "https://www.tiktok.com/@user/video/...",
+          icon: "↗",
+          button: "Cari media"
+        },
+        hdvideo: {
+          title: "HD Video Enhancer",
+          description: "Pilih video dari perangkat dan tingkatkan kualitasnya menjadi HD.",
+          placeholder: "",
+          icon: "◈",
+          button: "Enhance video"
+        },
+        ephoto: {
+          title: "Ephoto360 text generator",
+          description: "Tulis teks dan pilih efek. Generator Ephoto360 akan dibuka di tab baru untuk menyelesaikan desain.",
+          placeholder: "Masukkan teks...",
+          icon: "✧",
+          button: "Generate"
+        }
+      };
+      const tabs = [...document.querySelectorAll(".tab")];
+      const panel = document.getElementById("panel");
+      const form = document.getElementById("download-form");
+      const input = document.getElementById("url-input");
+      const submit = document.getElementById("submit-button");
+      const videoEnhancer = document.getElementById("video-enhancer");
+      const videoInput = document.getElementById("video-input");
+      const videoPreview = document.getElementById("video-preview");
+      const videoFileName = document.getElementById("video-file-name");
+      const processVideoButton = document.getElementById("process-video");
+      const enhancerStatus = document.getElementById("enhancer-status");
+      const enhancerOutput = document.getElementById("enhancer-output");
+      const effectSelectWrap = document.getElementById("effect-select-wrap");
+      const effectSelect = document.getElementById("effect-select");
+      const status = document.getElementById("status");
+      const result = document.getElementById("result");
+      let mode = "tiktok";
+      let selectedVideo = null;
+      let previewObjectUrl = null;
+
+      function setMode(nextMode) {
+        mode = nextMode;
+        const config = modes[mode];
+        tabs.forEach(tab => {
+          const selected = tab.dataset.mode === mode;
+          tab.setAttribute("aria-selected", String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        panel.setAttribute("aria-labelledby", `tab-${mode}`);
+        document.getElementById("form-title").textContent = config.title;
+        document.getElementById("form-description").textContent = config.description;
+        input.placeholder = config.placeholder;
+        const isTextTool = mode === "ephoto";
+        const isVideoTool = mode === "hdvideo";
+        form.hidden = isVideoTool;
+        input.disabled = isVideoTool;
+        input.required = !isVideoTool;
+        input.type = isTextTool ? "text" : "url";
+        input.autocomplete = isTextTool ? "off" : "url";
+        input.maxLength = isTextTool ? 120 : 2048;
+        input.setAttribute("aria-label", isTextTool ? "Teks untuk efek Ephoto360" : "URL media sosial");
+        videoEnhancer.hidden = !isVideoTool;
+        effectSelectWrap.hidden = mode !== "ephoto";
+        input.value = "";
+        clearSelectedVideo();
+        document.getElementById("input-icon").textContent = config.icon;
+        submit.textContent = config.button + " →";
+        clearOutput();
+        if (isVideoTool) videoInput.focus();
+        else input.focus();
+      }
+
+      function clearSelectedVideo() {
+        selectedVideo = null;
+        videoInput.value = "";
+        processVideoButton.disabled = true;
+        videoFileName.textContent = "Pilih video kamu";
+        videoPreview.pause();
+        videoPreview.removeAttribute("src");
+        videoPreview.hidden = true;
+        videoPreview.load();
+        if (previewObjectUrl) {
+          URL.revokeObjectURL(previewObjectUrl);
+          previewObjectUrl = null;
+        }
+      }
+
+      function clearOutput() {
+        status.className = "status";
+        status.textContent = "";
+        result.replaceChildren();
+      }
+      function showStatus(message, kind) {
+        status.className = `status show ${kind || ""}`;
+        status.textContent = message;
+      }
+      function setLoading(loading) {
+        submit.disabled = loading;
+        submit.innerHTML = loading ? '<span class="spinner" aria-hidden="true"></span>Memproses...' : `${modes[mode].button} <span aria-hidden="true">→</span>`;
+      }
+      function safeUrl(value) {
+        try {
+          const url = new URL(value);
+          return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+        } catch {
+          return null;
+        }
+      }
+      function validTikTokUrl(value) {
+        const safe = safeUrl(value);
+        if (!safe) return null;
+        const host = new URL(safe).hostname.toLowerCase();
+        return host === "tiktok.com" || host.endsWith(".tiktok.com") ? safe : null;
+      }
+      function resolveHttpUrl(value) {
+        try {
+          const url = new URL(value, window.location.href);
+          if ((url.protocol !== "https:" && url.protocol !== "http:") || url.username || url.password) return null;
+          return url.href;
+        } catch {
+          return null;
+        }
+      }
+      function makeLink(url, label, filename) {
+        const link = document.createElement("a");
+        link.className = "action-link";
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = label;
+        if (filename) link.download = filename;
+        return link;
+      }
+      function makeMediaCard(item, index, caption) {
+        const url = safeUrl(item.url);
+        if (!url) return null;
+        const card = document.createElement("article");
+        card.className = "media-card";
+        const isVideo = item.type === "video";
+        const preview = document.createElement(isVideo ? "video" : "img");
+        if (isVideo) {
+          preview.src = url;
+          preview.controls = true;
+          preview.preload = "metadata";
+          preview.playsInline = true;
+        } else {
+          preview.src = url;
+          preview.alt = `Pratinjau media ${index}`;
+          preview.loading = "lazy";
+        }
+        const info = document.createElement("div");
+        info.className = "media-info";
+        const heading = document.createElement("strong");
+        heading.textContent = `Media ${index} · ${isVideo ? "Video" : "Foto"}`;
+        const text = document.createElement("p");
+        text.textContent = caption || "File dibuka melalui penyedia media.";
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        actions.append(makeLink(url, "Buka / unduh", `media-${index}.${isVideo ? "mp4" : "jpg"}`));
+        info.append(heading, text, actions);
+        card.append(preview, info);
+        return card;
+      }
+      function renderMedia(items, caption) {
+        let count = 0;
+        items.forEach((item, index) => {
+          const card = makeMediaCard(item, index + 1, caption);
+          if (card) { result.append(card); count += 1; }
+        });
+        if (!count) throw new Error("Tidak ada tautan media yang valid dari penyedia.");
+        showStatus(`${count} media ditemukan. Gunakan tombol pada setiap media untuk membukanya atau mengunduhnya.`, "success");
+      }
+      function describeFetchError(error) {
+        if (error instanceof TypeError) return "Request ke penyedia gagal atau diblokir oleh CORS. File HTML statis tidak dapat melewati pembatasan tersebut; coba buka dengan hosting/API yang mengizinkan CORS.";
+        return error && error.message ? error.message : "Terjadi kesalahan saat mengambil data.";
+      }
+
+      tabs.forEach(tab => tab.addEventListener("click", () => setMode(tab.dataset.mode)));
+      tabs.forEach((tab, index) => tab.addEventListener("keydown", event => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        const next = tabs[(index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        setMode(next.dataset.mode);
+        next.focus();
+      }));
+      videoInput.addEventListener("change", () => {
+        const file = videoInput.files && videoInput.files[0];
+        enhancerOutput.replaceChildren();
+        enhancerStatus.className = "status enhancer-status";
+        enhancerStatus.textContent = "";
+        clearSelectedVideo();
+        if (!file) return;
+        if (!file.type.startsWith("video/")) {
+          enhancerStatus.className = "status enhancer-status show error";
+          enhancerStatus.textContent = "File harus berupa video.";
+          return;
+        }
+        selectedVideo = file;
+        videoFileName.textContent = file.name;
+        previewObjectUrl = URL.createObjectURL(file);
+        videoPreview.src = previewObjectUrl;
+        videoPreview.hidden = false;
+        processVideoButton.disabled = false;
+      });
+
+      processVideoButton.addEventListener("click", processVideo);
+
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        clearOutput();
+        const value = input.value.trim();
+        if (!value) {
+          const prompt = mode === "ephoto" ? "Masukkan teks yang ingin dibuat." : "Masukkan URL terlebih dahulu.";
+          showStatus(prompt, "error");
+          return;
+        }
+        setLoading(true);
+        try {
+          if (mode === "tiktok") await downloadTikTok(value);
+          else if (mode === "ephoto") generateEphoto(value);
+        } catch (error) {
+          showStatus(describeFetchError(error), "error");
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      async function processVideo() {
+        if (!selectedVideo) {
+          enhancerStatus.className = "status enhancer-status show error";
+          enhancerStatus.textContent = "Pilih video terlebih dahulu.";
+          return;
+        }
+        if (window.location.protocol !== "http:" && window.location.protocol !== "https:") {
+          enhancerStatus.className = "status enhancer-status show error";
+          enhancerStatus.textContent = "HD Video Enhancer membutuhkan backend /api/upload dan /api/hdvideo. Buka website melalui server HTTP atau HTTPS.";
+          return;
+        }
+        processVideoButton.disabled = true;
+        processVideoButton.innerHTML = '<span class="spinner" aria-hidden="true"></span>Memproses...';
+        enhancerStatus.className = "status enhancer-status show";
+        enhancerStatus.textContent = "Mengupload video...";
+        enhancerOutput.replaceChildren();
+
+        try {
+          const formData = new FormData();
+          formData.append("video", selectedVideo);
+          const uploadResponse = await fetch("/api/upload", {
+            method: "POST",
+            body: formData
+          });
+          if (!uploadResponse.ok) throw new Error("Upload video gagal.");
+          const uploadData = await uploadResponse.json();
+          if (!uploadData || typeof uploadData.url !== "string" || !resolveHttpUrl(uploadData.url)) {
+            throw new Error("URL upload tidak ditemukan atau tidak valid.");
+          }
+
+          enhancerStatus.textContent = "Memproses video menjadi HD...";
+          const endpoint = new URL("/api/hdvideo", window.location.href);
+          endpoint.searchParams.set("url", uploadData.url);
+          const response = await fetch(endpoint.href);
+          if (!response.ok) throw new Error(`Pemrosesan video gagal (HTTP ${response.status}).`);
+          const json = await response.json();
+          const downloadUrl = json && json.result && typeof json.result.download_url === "string"
+            ? resolveHttpUrl(json.result.download_url)
+            : null;
+          if (!json || !json.status || !downloadUrl) throw new Error("Gagal memproses video atau URL hasil tidak valid.");
+
+          const video = document.createElement("video");
+          video.className = "video-preview";
+          video.controls = true;
+          video.playsInline = true;
+          video.src = downloadUrl;
+          const download = document.createElement("a");
+          download.className = "action-link video-download";
+          download.href = downloadUrl;
+          download.target = "_blank";
+          download.rel = "noopener noreferrer";
+          download.textContent = "⬇ Download video HD";
+          enhancerOutput.append(video, download);
+          enhancerStatus.className = "status enhancer-status show success";
+          enhancerStatus.textContent = "Video HD berhasil diproses!";
+        } catch (error) {
+          enhancerStatus.className = "status enhancer-status show error";
+          const message = error instanceof TypeError
+            ? "Backend tidak dapat dihubungi. Pastikan /api/upload dan /api/hdvideo tersedia serta mengizinkan request dari website ini."
+            : error.message || "Terjadi kesalahan.";
+          enhancerStatus.textContent = `Gagal memproses video: ${message}`;
+        } finally {
+          processVideoButton.disabled = !selectedVideo;
+          processVideoButton.innerHTML = 'Enhance video <span aria-hidden="true">→</span>';
+        }
+      }
+
+      async function downloadTikTok(value) {
+        const url = validTikTokUrl(value);
+        if (!url) throw new Error("Masukkan URL TikTok yang valid (tiktok.com).");
+        showStatus("Menghubungi penyedia TikTok...", "");
+        const endpoint = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error(`Penyedia TikTok mengembalikan HTTP ${response.status}.`);
+        const json = await response.json();
+        if (json.code !== 0 || !json.data) throw new Error(json.msg || "Media TikTok tidak ditemukan atau tidak dapat diakses.");
+        const data = json.data;
+        const media = [];
+        if (Array.isArray(data.images) && data.images.length) {
+          data.images.forEach(image => {
+            const imageUrl = typeof image === "string" ? image : image && (image.url || image.src);
+            if (imageUrl) media.push({ type: "image", url: imageUrl });
+          });
+        } else {
+          const videoUrl = data.hdplay || data.play || data.wmplay;
+          if (videoUrl) media.push({ type: "video", url: videoUrl });
+        }
+        if (!media.length) throw new Error("Penyedia tidak mengembalikan media yang bisa ditampilkan.");
+        renderMedia(media, data.title || "TikTok media");
+        if (data.music) {
+          const audioUrl = safeUrl(data.music);
+          if (audioUrl) {
+            const block = document.createElement("article");
+            block.className = "media-card";
+            const icon = document.createElement("div");
+            icon.textContent = "♫";
+            icon.style.cssText = "display:grid;place-items:center;min-height:80px;font-size:36px;color:#c0adff";
+            const details = document.createElement("div");
+            details.className = "media-info";
+            const title = document.createElement("strong");
+            title.textContent = "Audio TikTok";
+            const actions = document.createElement("div");
+            actions.className = "actions";
+            actions.append(makeLink(audioUrl, "Buka / unduh audio", "tiktok-audio.mp3"));
+            details.append(title, actions);
+            block.append(icon, details);
+            result.append(block);
+          }
+        }
+      }
+
+      function generateEphoto(value) {
+        const effect = effectSelect.value;
+        const link = ephotoEffects[effect];
+        if (!link) throw new Error("Efek yang dipilih tidak tersedia.");
+
+        const popup = window.open(link, "_blank");
+        if (popup) popup.opener = null;
+        const card = document.createElement("article");
+        card.className = "media-card effect-result";
+        const preview = document.createElement("div");
+        preview.className = "effect-preview";
+        preview.textContent = value;
+        const info = document.createElement("div");
+        info.className = "media-info";
+        const heading = document.createElement("strong");
+        heading.textContent = effectSelect.selectedOptions[0].textContent;
+        const description = document.createElement("p");
+        description.textContent = popup
+          ? "Generator dibuka di tab baru. Masukkan teks Anda di situs Ephoto360 untuk membuat hasilnya."
+          : "Browser memblokir tab otomatis. Gunakan tombol di bawah untuk membuka generator Ephoto360.";
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        actions.append(makeLink(link, "Buka Ephoto360", null));
+        info.append(heading, description, actions);
+        card.append(preview, info);
+        result.append(card);
+        showStatus(popup ? "Generator Ephoto360 dibuka di tab baru." : "Klik tombol untuk membuka generator Ephoto360.", "success");
+      }
+
+    })();
+  </script>
+  <script src="animasi.js" defer></script>
+  <script src="order-app.js" defer></script>
+</body>
+</html>
