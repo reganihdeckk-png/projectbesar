@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS premium_checkouts (
+  token TEXT PRIMARY KEY,
+  product_id INTEGER NOT NULL,
+  product_name TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  total INTEGER NOT NULL,
+  payment_invoice TEXT NOT NULL,
+  qr_image TEXT NOT NULL,
+  status TEXT NOT NULL,
+  order_invoice TEXT NOT NULL DEFAULT '',
+  accounts_json TEXT NOT NULL DEFAULT '[]',
+  error_message TEXT NOT NULL DEFAULT '',
+  created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS premium_checkouts_status_created
+ON premium_checkouts (status, created_at);
